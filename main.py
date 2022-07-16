@@ -13,7 +13,11 @@ print("Loaded os")
 import sys
 print("Loaded sys")
 import asyncio
+import datetime, time 
 print("Loaded asyncio")
+import logging_color
+logging_color.monkey_patch()
+print("Pacthed logging for colored output")
 #from numba import jit
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] - [%(levelname)s] - [%(name)s(%(filename)s)]: %(message)s", datefmt="%H:%M:%S")
@@ -56,10 +60,12 @@ class Bot(commands.Bot):
 	def __init__(self, intents):
 		super().__init__(command_prefix=prefix, intents=intents)
 	async def startup(self):
+		global startTime
 		await bot.wait_until_ready()
 		await bot.tree.sync()  # If you want to define specific guilds, pass a discord object with id (Currently, this is global)
 		info('Sucessfully synced applications commands')
 		info(f'Connected as {bot.user}')
+		startTime = time.time()
 	async def setup_hook(self):
 		for filename in os.listdir("./cogs"):
 			if filename.endswith(".py") and filename != "AMOGUS.py":
@@ -91,6 +97,11 @@ async def shutdown(ctx):
 async def on_command_error(ctx, err):
 	e = discord.Embed(color=0xff0000, title="Ошибка!")
 	logger.error("Error!")
+	try: 
+		info(dir(err))
+		info(dir(err.original))
+		info(err.original.with_traceback)
+	except: pass
 	try:
 		for i in err:
 			info(i)
@@ -122,6 +133,11 @@ async def load_cog(ctx, cog):
 	await bot.load_extension(cog)
 
 # diskord.py commands section end
+
+@bot.command()
+async def uptime(ctx):
+	uptime = str(datetime.timedelta(seconds=int(round(time.time()-startTime))))
+	await ctx.send(uptime)
 
 info("Intializating cogs...")
 

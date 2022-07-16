@@ -38,53 +38,56 @@ class TendAi(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		info("New message!")
-		try: info(f"Server: {message.guild.name}")
-		except: pass
-		try: info(f"Channel: {message.channel.name}")
-		except: pass
-		info(f"User: {message.author.name}")
-		info(f"Message: {message.content}")
-		info(f"Attachements: {message.attachments}")
-		info("Embeds:")
-		embeds = message.embeds # return list of embeds
-		for embed in embeds: info(embed.to_dict()) # it's content of embed in dict
-		if message.content.startswith("|"):
-			info("Ignore.")
-			return 0
+		if message.channel.id == 980039395904225280 or message.channel.id == 984536404178653264:
+			pass
 		else:
-			try:
-				if random.randint(0,5) == 5:
-					if message.guild.id == 963381813139624056:
-						info("Message in DSBC")
-						info("Checking for channel...")
-						if message.channel.id == 973916297454829618 and message.author.id != 934851107870621726:
-							info("This is allowed channel!, replying...")
-							data = json.load(open("tendai.words.json"))
-							random_msg = random.choice(data)
-							async with message.channel.typing():
-								await asyncio.sleep(2)
-							await message.channel.send(random_msg, reference=message)
-						else:
-							info("This is not allowed channel or author self bot!")
-				else:
-					if message.guild.id == 963381813139624056:
-						info("Message in DSBC")
-						info("Checking for channel...")
-						if message.channel.id == 973916297454829618 and message.author.id != 934851107870621726:
-							info("Saving...")
-							data = json.load(open("tendai.words.json"))
-							if message.content in data:
-								info("Word already in database!")
-								return 0
-							data.append(message.content)
-							json.dump(data, open("tendai.words.json", "w"))
-							info("Reacting...")
-							await message.add_reaction("🍪")
-							info("Done!")
-			except Exception as e:
-				info("Error!")
-				info(e)
+			info("New message!")
+			try: info(f"Server: {message.guild.name}")
+			except: pass
+			try: info(f"Channel: {message.channel.name}")
+			except: pass
+			info(f"User: {message.author.name}")
+			info(f"Message: {message.content}")
+			info(f"Attachements: {message.attachments}")
+			info("Embeds:")
+			embeds = message.embeds # return list of embeds
+			for embed in embeds: info(embed.to_dict()) # it's content of embed in dict
+			if message.content.startswith("|"):
+				info("Ignore.")
+				return 0
+			else:
+				try:
+					if random.randint(0,5) == 5:
+						if message.guild.id == 963381813139624056:
+							info("Message in DSBC")
+							info("Checking for channel...")
+							if message.channel.id == 973916297454829618 and message.author.id != 934851107870621726:
+								info("This is allowed channel!, replying...")
+								data = json.load(open("tendai.words.json"))
+								random_msg = random.choice(data)
+								async with message.channel.typing():
+									await asyncio.sleep(2)
+								await message.channel.send(random_msg, reference=message)
+							else:
+								info("This is not allowed channel or author self bot!")
+					else:
+						if message.guild.id == 963381813139624056:
+							info("Message in DSBC")
+							info("Checking for channel...")
+							if message.channel.id == 973916297454829618 and message.author.id != 934851107870621726:
+								info("Saving...")
+								data = json.load(open("tendai.words.json"))
+								if message.content in data:
+									info("Word already in database!")
+									return 0
+								data.append(message.content)
+								json.dump(data, open("tendai.words.json", "w"))
+								info("Reacting...")
+								await message.add_reaction("🍪")
+								info("Done!")
+				except Exception as e:
+					info("Error!")
+					info(e)
 
 
 async def setup(bot):

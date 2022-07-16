@@ -73,7 +73,6 @@ class Nsfw(commands.Cog):
 	@commands.command(brief="По переводу комманды понятно")
 	@commands.is_nsfw()
 	async def lewd(self, ctx, count=1):
-		raise RuntimeException("не работает.")
 		if count > 50:
 			raise RuntimeError("чел, а зачем?")
 		count = int(count)
@@ -93,8 +92,8 @@ class Nsfw(commands.Cog):
 	@commands.command(brief="Найти nsfw по тэгам")
 	@commands.is_nsfw()
 	async def r34(self, ctx, r34tags="random", count=50, page_id=None):
-		if ctx.author.id != 773136208439803934:
-			raise RuntimeError("ERROR")
+		#if ctx.author.id == 775749058119204884:
+		#	raise RuntimeError("ERROR")
 		embeds = []		
 		count = int(count)
 		r34tags = str(r34tags)
@@ -164,7 +163,7 @@ class Nsfw(commands.Cog):
 			else:
 				await ctx.send(tags, file=file)
 			#await ctx.send(embed=embed)
-			time.sleep(1)
+			#time.sleep(1)
 			#os.remove(file)
 		await ctx.send(f"Было найдено: {sended}")
 		if blocked_tags == 0:
@@ -172,11 +171,14 @@ class Nsfw(commands.Cog):
 		else:
 			await ctx.send(f"Заблокированы тэги: {blocked_tags_list}")
 			await ctx.send(f"Количество заблокированых тэгов: {blocked_tags}")
+			count2 = sended
+			count2 += blocked_tags
+			await ctx.send(f"В сумме(найдено и заблокировано): {count2}")
 		info("Done!")
 	@commands.command(brief="Подсчитать количество nsfw по тэгу")
 	async def r34count(self, ctx, r34tags="random", count=2000):
-		if ctx.author.id != 773136208439803934:
-			raise RuntimeError("ERROR")
+		#if ctx.author.id == 775749058119204884:
+		#	raise RuntimeError("ERROR")
 		embeds = []		
 		count = int(count)
 		r34tags = str(r34tags)
