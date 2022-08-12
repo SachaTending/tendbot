@@ -24,7 +24,7 @@ class Economy(commands.Cog):
 
     async def is_owner(ctx):
         info("Requested bot admin command! Checking...")
-        if ctx.author.id == 773136208439803934 or ctx.author.id == 775749058119204884 or 892823120283594804 == ctx.author.id:
+        if ctx.author.id in [773136208439803934, 775749058119204884, 892823120283594804]:
             info("This is admin/owner of the bot, can continue execution")
             return True
         else:
@@ -46,14 +46,14 @@ class Economy(commands.Cog):
             self.cooldown[userid] = time.time()
             return 0
     @commands.command(brief="Казино")
-    async def casino(self, ctx, something: int, count=1):
+    async def casino(self, ctx, something: int, count: int=1):
         usercooldown = self.iscooldown(ctx.author.id)
         if usercooldown == 0:
-            count = int(count)
+            # count = int(count)
             maximum = 2000
             if count != 1:
                 if count <= maximum:
-                    await ctx.send(f"Хмм, ну ладно, ставка на {something} {count} раз")
+                    msg = await ctx.reply(f"Хмм, ну ладно, ставка на {something} {count} раз")
                     #await ctx.send(f"{something} Говоришь?")
                     wins = 0
                     fails = 0
@@ -74,30 +74,32 @@ class Economy(commands.Cog):
                             wtf -= 10
                             #await ctx.send("Ты проиграл!")
                             #await ctx.send(f"Ответ: {something2}")
-                    await ctx.send(f"Выигрышей: {wins}\nПроигрышей: {fails}\nЗачислено: {wtf}")
+                    await msg.edit(content=f"Выигрышей: {wins}\nПроигрышей: {fails}\nЗачислено: {wtf}")
                     #await ctx.send(f"Проигрышей: {fails}")
                     #await ctx.send(f"Зачислено: {wtf}")
                 else:
-                    await ctx.send(f"Слишком много!\nМаксимум {maximum}")
+                    await ctx.reply(f"Слишком много!\nМаксимум {maximum}")
             else:
-                await ctx.send(f"{something} Говоришь?")
+                msg = await ctx.reply(f"{something} Говоришь?")
                 for i in range(1, 100):
                     something2 = random.randint(1, 2)
                 if something2 == something:
-                    await ctx.send("Ты выиграл!")
+                    await msg.edit(content="Ты выиграл!")
                     keydata = self.somefuncs.getkey(str(ctx.author.id))
                     balance = keydata["balance"] + 10.0
                     keydata["balance"] = balance
                     self.somefuncs.dumpkey(str(ctx.author.id), keydata)
-                    await ctx.send("На ваш баланс было зачислено 10 флопских коинов")
+                    await msg.edit(content="На ваш баланс было зачислено 10 флопских коинов")
                 else:
-                    await ctx.send("Ты проиграл!")
-                    await ctx.send(f"Ответ: {something2}")
+                    await msg.edit(content=f"""
+Ты проиграл!
+Ответ: {something2}
+С вашего баланса было снято 10 флопских коинов
+""")
                     keydata = self.somefuncs.getkey(str(ctx.author.id))
                     balance = keydata["balance"] - 10.0
                     keydata["balance"] = balance
                     self.somefuncs.dumpkey(str(ctx.author.id), keydata)
-                    await ctx.send("С вашего баланса было снято 10 флопских коинов")
         else:
             raise RuntimeError(f"Кулдаун! {usercooldown}")
     @commands.command(aliases=["b", "mb"], brief="Проверить баланс+регистрация в дб")
