@@ -2,15 +2,21 @@ import discord
 from discord.ext import commands
 import json
 import pafy
-from youtubesearchpython.__future__ import VideosSearch
-import logging
+from youtube_search import YoutubeSearch
+import loguru, traceback
 import requests
 from discord import app_commands
 from flask import request, Flask
+from typing import Optional
 
 app = Flask("Music")
 
-logger = logging.getLogger("Music")
+try: logger = logging.getLogger("Music")
+except:
+	print("Using loguru")
+	__name__ = "Music"
+	logger = loguru.logger
+
 info = logger.info
 error = logger.error
 debug = logger.debug
@@ -55,45 +61,17 @@ radiodb = {
 
 servers = {}
 
-def antihack(message):
-	out = True
-	test = list(message)
-	if "$" == test[0] or "{" == test[0] or "(" == test[0]:
-		info("WARN")
-		out = False
-	if out == False:
-		return out
-	else:
-		info(2)
-		for i in test:
-			if "$" == i or "{" == i or "(" == i:
-				info("WARN")
-				out = False
-				break
-		if out == False:
-			return out
-		if "$(" in message or "${" in message or "(" in message or "{" in message:
-			return False
-		else:
-			return True		   
+def antihack(message: str) -> bool:
+    for i in message:
+        if i in ["$", "{", "("]:
+            return False
+    return True
 
-def parsejson(radioid=15016):
-	info("Downloading...")
-	recordlist = requests.get("https://www.radiorecord.ru/api/stations/now/").json()
-	for i in recordlist["result"]:
-		if i["id"] == radioid:
-			info("Founded record dance radio")
-			info("Getting info...")
-			recordtrack = i["track"]
-			break
-		else:
-			pass
-	recordtrackinfo = {
-		"song": recordtrack["song"],
-		"artist": recordtrack["artist"]
-	}
-	info("Parser work done!")
-	return recordtrackinfo
+def parsejson(radioid: Optional[int]=None):
+    radioid, recordlist = radioid or 15016, json.loads(requests.get("https://www.radiorecord.ru/api/stations/now/").content)
+    for i in recordlist["result"]:
+        if i["id"] == radioid:
+            return i["track"]
 
 def checkyoutubeurl(url):
 	info(f"URL: {url}")
@@ -186,11 +164,11 @@ class Music(commands.Cog):
 					video = pafy.new(url)
 					if len(queuelist) == 0:
 						info("Queue is empty.")
-						apistatusjson["playing"] = "true"
-						apistatusjson["type"] = "ytdl"
-						apistatusjson["name"] = str(video.title)
-						apistatusjson["author"] = str(video.author)
-						apistatusjson["url"] = str(url)
+						#apistatusjson["playing"] = "true"
+						#apistatusjson["type"] = "ytdl"
+						#apistatusjson["name"] = str(video.title)
+						#apistatusjson["author"] = str(video.author)
+						#apistatusjson["url"] = str(url)
 						audio = video.getbestaudio()
 						info("Playing...")
 						queuefile = {
@@ -221,60 +199,67 @@ class Music(commands.Cog):
 						}
 						servers[server_id]["queuelist"].append(queuefile)
 						_embed = discord.Embed(color=0x0080ff)
-						_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Добавлен в очередь!")
+						_embed.add_field(value=f"[{video.title} by {video.author}]({url})", name="Добавлен в очередь!")
 						_embed.set_image(url=video.thumb)
 						await ctx.send(embed=_embed)
 						return
+
 				except Exception as e:
-					error(f"Error: {e}")
-					info("This is not a url")
-					info("Trying to search...")
-					videosSearch = VideosSearch(url, limit = 1)
-					videosResult = await videosSearch.next()
-					vidurl = videosResult["result"][0]['link']
-					video = pafy.new(vidurl)
-					info("Getting audio url...")
-					if len(queuelist) == 0:
-						info("Queue is empty.")
-						apistatusjson["playing"] = "true"
-						apistatusjson["type"] = "ytdl"
-						apistatusjson["name"] = str(video.title)
-						apistatusjson["author"] = str(video.author)
-						apistatusjson["url"] = str(vidurl)
-						audio = video.getbestaudio()
-						info("Playing...")
-						#await ctx.send("Воспроизведение...")
-						queuefile = {
-							"playing": "true",
-							"type": "ytdl",
-							"name": video.title,
-							"author": video.author,
-							"url": vidurl,
-							"playurl": audio.url
-						}
-						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(audio.url), after=lambda e: on_complete_playing(e, server_id))
-						servers[server_id]["queuelist"].append(queuefile)
-						_embed = discord.Embed(color=0x0080ff)
-						_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Сейчас играет")
-						_embed.set_image(url=video.thumb)
-						await ctx.send(embed=_embed)
-						return
-					else:
-						audio = video.getbestaudio()
-						queuefile = {
-							"playing": "true",
-							"type": "ytdl",
-							"name": video.title,
-							"author": video.author,
-							"url": vidurl,
-							"playurl": audio.url
-						}
-						servers[server_id]["queuelist"].append(queuefile)
-						_embed = discord.Embed(color=0x0080ff)
-						_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Добавлен в очередь!")
-						_embed.set_image(url=video.thumb)
-						await ctx.send(embed=_embed)
-						return
+					try:
+						error(f"Error: {traceback.format_exc()}")
+						info("This is not a url")
+						info("Trying to search...")
+						videosSearch = YoutubeSearch(url, max_results = 1)
+						videosResult = json.loads(videosSearch.to_json())
+						vidurl = "https://youtube.com/watch?v="+videosResult["videos"][0]['id']
+						video = pafy.new(vidurl)
+						info("Getting audio url...")
+						if len(queuelist) == 0:
+							info("Queue is empty.")
+							#apistatusjson["playing"] = "true"
+							#apistatusjson["type"] = "ytdl"
+							#apistatusjson["name"] = str(video.title)
+							#apistatusjson["author"] = str(video.author)
+							#apistatusjson["url"] = str(vidurl)
+							audio = video.getbestaudio()
+							info("Playing...")
+							#await ctx.send("Воспроизведение...")
+							queuefile = {
+								"playing": "true",
+								"type": "ytdl",
+								"name": video.title,
+								"author": video.author,
+								"url": vidurl,
+								"playurl": audio.url
+							}
+							servers[server_id]["vc"].play(discord.FFmpegPCMAudio(audio.url), after=lambda e: on_complete_playing(e, server_id))
+							servers[server_id]["queuelist"].append(queuefile)
+							_embed = discord.Embed(color=0x0080ff)
+							_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Сейчас играет")
+							_embed.set_image(url=video.thumb)
+							await ctx.send(embed=_embed)
+							return
+						else:
+							audio = video.getbestaudio()
+							queuefile = {
+								"playing": "true",
+								"type": "ytdl",
+								"name": video.title,
+								"author": video.author,
+								"url": vidurl,
+								"playurl": audio.url
+							}
+							servers[server_id]["queuelist"].append(queuefile)
+							_embed = discord.Embed(color=0x0080ff)
+							_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Добавлен в очередь!")
+							_embed.set_image(url=video.thumb)
+							await ctx.send(embed=_embed)
+							return
+					except:
+						error("Error!")
+						error("Traceback:")
+						error(traceback.format_exc())
+						raise RuntimeError("Error while getting music info.")
 			elif result == "playlist":
 				info("Getting videos from playlist...")
 			elif result == "file":
@@ -398,6 +383,7 @@ class Music(commands.Cog):
 		global pausestate
 		global oldtypestatusjson
 		try:
+			vc = servers[ctx.guild.id]["vc"]
 			if pausestate == False:
 				vc.pause()
 				pausestate = True

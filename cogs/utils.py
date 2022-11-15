@@ -1,22 +1,49 @@
 from discord.ext import commands
 from flask import request
 import discord
-import logging
+import loguru
 import pydustry
 import os
 from ping3 import ping as ping_lib
+#import dnspython as dns
 import dns.resolver
 import sys, asyncio, traceback
 import speech_recognition as sr
 from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
-import ConfMan
+import ConfMan, random
+from subprocess import Popen, PIPE
 
-logger = logging.getLogger("Utils")
+try: logger = logging.getLogger("Utils")
+except:
+	print("Using loguru")
+	logger = loguru.logger
 
 debug = logger.debug
 info = logger.info
 warn = logger.warning
 error = logger.error
+
+def antihack(message):
+	out = True
+	test = list(message)
+	if "$" == test[0] or "{" == test[0] or "(" == test[0]:
+		info("WARN")
+		out = False
+	if out == False:
+		return out
+	else:
+		info(2)
+		for i in test:
+			if "$" == i or "{" == i or "(" == i:
+				info("WARN")
+				out = False
+				break
+		if out == False:
+			return out
+		if "$(" in message or "${" in message or "(" in message or "{" in message:
+			return False
+		else:
+			return True		   
 
 class Utils(commands.Cog):
 	def __init__(self, bota):
@@ -27,6 +54,11 @@ class Utils(commands.Cog):
 		apidb = self.apidb
 		self.bot = bota
 		bot = bota
+		self.r = sr.Recognizer()
+		@bot.tree.context_menu(name='Дата входа на сервер')
+		async def show_join_date(interaction: discord.Interaction, member: discord.Member):
+			# The format_dt function formats the date time into a human readable representation in the official client
+			await interaction.response.send_message(f'{member} вошёл в {discord.utils.format_dt(member.joined_at)}')
 		self.resolver = dns.resolver.Resolver()
 		self.resolver.nameservers = ['1.1.1.1']
 		info("Done!")
@@ -61,7 +93,7 @@ class Utils(commands.Cog):
 				tokenid = apidb.search(tendbotapitoken)
 				info(f"Token({tendbotapitoken}) id is {tokenid}")
 				if tokenid != None:
-					try: user = bot.get_user(tokenid)
+					try: user = bot.get_user(int(tokenid))
 					except: return {"return": {"code": 500, "message": "the user id specifed in token invalid"}}
 					out = {
 						"return": {
@@ -84,7 +116,7 @@ class Utils(commands.Cog):
 
 	async def is_owner(ctx):
 		info("Requested bot admin command! Checking...")
-		if ctx.author.id == 773136208439803934 or ctx.author.id == 775749058119204884 or 892823120283594804 == ctx.author.id:
+		if ctx.author.id == 773136208439803934 or ctx.author.id == 775749058119204884 or 892823120283594804 == ctx.author.id or ctx.author.id == 483833827563798552:
 			info("This is admin/owner of the bot, can continue execution")
 			return True
 		else:
@@ -108,7 +140,17 @@ class Utils(commands.Cog):
 	async def members(self, ctx, wtf=""):
 		embedVar = discord.Embed(title=f'На сервере {ctx.guild.member_count} {wtf}', color=0x0080ff)
 		await ctx.send(embed=embedVar)
+
+
+	@commands.Cog.listener()
+	async def on_guild_join(self, server):
+		usr = self.bot.get_user(773136208439803934)
+		await usr.send("im added to server")
+		await usr.send(server.name)
+		await usr.send(server.id)
+
 	@commands.command()
+	#@bot.slash_command()
 	async def status(self, ctx, ip="localhost", port: int=7576):
 		print(1)
 		embed = discord.Embed(title="Статус", color=0x0080ff)
@@ -145,29 +187,96 @@ class Utils(commands.Cog):
 		await ctx.send(embed=e)
 
 	@commands.command(aliases=['avatar'])
-	async def аватар(self, ctx, member='self'):
-		if member == 'self': member = ctx.author
-		else: member = self.bot.fetch_user(int(member))
-		info(member.avatar_url)
+	async def аватар(self, ctx, member: discord.Member=0):
+		if member.id == 0: member = ctx.author
+		info(member.avatar)
+		await ctx.send(member.avatar)
 
 	@commands.command(name="eval")
 	@commands.is_owner()
 	async def _eval(self, ctx, *, cmd="'hi'"): 
-		out = eval(cmd)
-		if out != None: await ctx.send(out)
+		try: out = str(eval(cmd))
+		except:
+			logger.error("Error!")
+			logger.error(traceback.format_exc())
+			await ctx.send('```\n'+traceback.format_exc()+'\n```')
+			out = None
+		if out != None: await ctx.send('```\n'+out+'\n```')
+
+	@commands.command(name="evala")
+	@commands.is_owner()
+	async def _evala(self, ctx, *, cmd="'hi'"): 
+		try: out = str(await eval(cmd))
+		except:
+			logger.error("Error!")
+			logger.error(traceback.format_exc())
+			await ctx.send('```\n'+traceback.format_exc()+'\n```')
+			out = None
+		if out != None: await ctx.send('```\n'+out+'\n```')
+
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, err):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
-		try: 
-			info(err.original.with_traceback.__traceback__)
-		except: pass
+		logger.error(traceback.format_exc())
+		#except: pass
 
 	@commands.command()
-	async def recog(self, file="attach", lang="ru_RU"):
-		await ctx.send("in dev/в разработке")
+	#@commands.is_owner()
+	async def recog(self, ctx, file="attach", lang="ru_RU"):
+		#await ctx.send("in dev/в разработке")
+		if file == 'attach':
+			files = ctx.message.attachments
+			files_array = [{i.filename: i.url} for i in files]
+			out = []
+			for i in files_array:
+				for a in i:
+					url = i[a]
+					name = a
+				fname = f"/tmp/tendbot/recog-{random.randint(100, 500)}-{name}"
+				process = Popen(['ffmpeg', '-i', url, '-f', 'wav', fname], stdout=PIPE)
+				while process.poll() == None:
+					info(f'{name} STDOUT: {process.stdout.readline()}')
+
+				with sr.AudioFile(fname) as source:
+					 audio = self.r.record(source)
+
+				out.append({name: self.r.recognize_google(audio, language=lang)})
 
 
-async def setup(bot):
+			a = """Output:
+				```
+				"""
+
+			for i in out:
+				a += f"{i}: {out[i]}\n"
+			a += "```"
+			await ctx.send(a)
+		elif file.startswith('https://') or file.startswith("http://") and antihack(file) == True:
+			files_array = file
+			out = []
+			name = None
+			url = files_array
+			fname = f"/tmp/tendbot/recog-{random.randint(100, 500)}-{name}"
+			process = Popen(['ffmpeg', '-i', url, '-f', 'wav', fname], stdout=PIPE)
+			while process.poll() == None:
+				info(f'{name} STDOUT: {process.stdout.readline()}')
+			with sr.AudioFile(fname) as source:
+				 audio = self.r.record(source)
+
+			out = self.r.recognize_google(audio, language=lang)
+
+
+			a = """Output:
+				```
+				"""
+			a += f"{out}\n"
+			a += "```"
+			await ctx.send(a)
+
+async def setup(bota):
+	bot = bota
 	info("Setup of utils cog called!")
-	await bot.add_cog(Utils(bot))
+	await bota.add_cog(Utils(bot))
+	await bota.tree.sync()  # If you want to define specific guilds, pass a discord object with id (Currently, this is global)
+	info("Commands synced.")
