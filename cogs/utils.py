@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 try: logger = logging.getLogger("Utils")
 except:
 	print("Using loguru")
+	__name__ = "Utils"
 	logger = loguru.logger
 
 debug = logger.debug

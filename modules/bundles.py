@@ -1,4 +1,6 @@
-import json
+import json, loguru
+
+info = loguru.logger.info
 
 class Bundle():
 	def __init__(self):
@@ -7,15 +9,15 @@ class Bundle():
 	def get(self, servid=0, target=""):
 		lang = self.bundledb.get(servid, "en_US")
 		l = self.getbundlelang(lang)
-		print(l)
+		info(l)
 		return l.get(target, target)
 	def getbundlelang(self, lang):
 		if lang in self.cached:
-			print(1)
+			info(1)
 			lng = hash(open(f"bundles/{lang}.bundle").read())
 			if self.cached[lang]['hash'] != lng:
 				lng = self.parselang(lang)
-				print(2)
+				info(2)
 				self.cached[lang]['hash'] = hash(open(f"bundles/{lang}.bundle").read())
 				self.cached[lang]['lang'] = lng
 				return self.cached[lang]['lang']
@@ -25,7 +27,7 @@ class Bundle():
 			try:
 				l = self.parselang(lang)
 				self.cached[lang] = {}
-				print(3)
+				info(3)
 				self.cached[lang]['hash'] = hash(open(f"bundles/{lang}.bundle").read())
 				self.cached[lang]['lang'] = l
 				return self.cached[lang]['lang']
@@ -34,6 +36,8 @@ class Bundle():
 	def parselang(self, lang):
 		ret = {}
 		l = open(f"bundles/{lang}.bundle").read()
-		for i in l.split():
-			ret[i.split(":")[0]] = i.split(":")[1]
+		for i in l.split("\n"):
+			info(i, l, l.split("\n"))
+			ret[i.split(":", maxsplit=1)[0]] = i.split(":", maxsplit=1)[1]
+		info(ret)
 		return ret

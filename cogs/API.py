@@ -28,7 +28,7 @@ class API_Server(commands.Cog):
 		self.characters = string.ascii_letters + string.digits
 		info("Starting server process...")
 		self.app_thread = mp.Process(target=lambda: self.app.run(host="0.0.0.0", port=7579))
-		self.app_thread.start()
+		#self.app_thread.start()
 		app_thread = self.app_thread
 
 	@app.route("/login/")

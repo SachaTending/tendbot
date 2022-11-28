@@ -17,6 +17,11 @@ import datetime, time
 print("Loaded asyncio")
 import signal
 print("Loaded signal")
+
+from loguru_logging_intercept import setup_loguru_logging_intercept
+
+setup_loguru_logging_intercept(modules="discord")
+print("Patched discord to use loguru as default logger.")
 #import logging_color
 #logging_color.monkey_patch()
 #print("Pacthed logging for colored output")

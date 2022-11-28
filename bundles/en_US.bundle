@@ -1,4 +1,5 @@
 bot.name:TendBot
 bot.author:TendingStream73#5806
+bot.error:Error! Traceback:
 music.now_playing:Now playing
 music.added_to_queue:Added to queue

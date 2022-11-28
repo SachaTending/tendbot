@@ -399,7 +399,7 @@ class Music(commands.Cog):
 			info(e)
 			await ctx.send("Error!")
 
-	@commands.command(aliases=["skip"])
+	@commands.command()
 	async def stop(self, ctx):
 		server_id = ctx.guild.id
 		apistatusjson["playing"] = "false"
@@ -407,7 +407,20 @@ class Music(commands.Cog):
 		apistatusjson["url"] = "none"
 		apistatusjson["name"] = "none"
 		apistatusjson["author"] = "none"
+		servers[server_id]["queuelist"] = []
 		servers[server_id]["vc"].stop()
+	@commands.command()
+	async def skip(self, ctx):
+		server_id = ctx.guild.id
+		apistatusjson["playing"] = "false"
+		apistatusjson["type"] = "idle"
+		apistatusjson["url"] = "none"
+		apistatusjson["name"] = "none"
+		apistatusjson["author"] = "none"
+		l = servers[server_id]["loopstate"]
+		servers[server_id]["loopstate"] = "off"
+		servers[server_id]["vc"].stop()
+		servers[server_id]["loopstate"] = l
 	@commands.command(aliases=["q"])
 	async def queue(self, ctx):
 		server_id = ctx.guild.id
