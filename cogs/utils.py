@@ -24,6 +24,9 @@ info = logger.info
 warn = logger.warning
 error = logger.error
 
+def imp(mod):
+	return __import__(mod)
+
 def antihack(message):
 	out = True
 	test = list(message)
