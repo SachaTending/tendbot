@@ -1,7 +1,7 @@
 git+https://github.com/Rapptz/discord.py/
 flask
 PyNaCl
-pafy
+git+https://github.com/mps-youtube/pafy
 youtube_search
 requests
 youtube-dl
