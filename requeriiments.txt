@@ -4,4 +4,5 @@ PyNaCl
 pafy
 youtube_search
 requests
+youtube-dl
 git+https://github.com/romanin-rf//mtg.py
