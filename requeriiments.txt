@@ -4,7 +4,6 @@ PyNaCl
 dnspython
 speech-recognition-python
 flask_discord
-speech_recognition
 loguru_logging_intercept
 youtube-dl
 ping3
