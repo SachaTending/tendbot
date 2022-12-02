@@ -471,3 +471,14 @@ class Music(commands.Cog):
 async def setup(bot):
 	info("Setup of Music cog called!")
 	await bot.add_cog(Music(bot))
+
+async def teardown(bot):
+	info("Leaving...")
+	for i in servers:
+		try:
+			await servers[i]['vc'].channel.send("warning: bot(or music module) goes to restart, pls reconnect bot")
+			await servers[i]["vc"].disconnect()
+		except Exception as e:
+			error(traceback.format_exc())
+	info("Done!")
+	
