@@ -1,6 +1,7 @@
 git+https://github.com/Rapptz/discord.py/
 flask
 PyNaCl
+loguru_logging_intercept
 youtube-dl
 loguru
 git+https://github.com/mps-youtube/pafy
