@@ -1,8 +1,12 @@
 git+https://github.com/Rapptz/discord.py/
 flask
 PyNaCl
+dnspython
+flask_discord
+speech_recognition
 loguru_logging_intercept
 youtube-dl
+ping3
 loguru
 git+https://github.com/mps-youtube/pafy
 youtube_search
