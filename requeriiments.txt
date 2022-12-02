@@ -2,7 +2,7 @@ git+https://github.com/Rapptz/discord.py/
 flask
 PyNaCl
 dnspython
-speech-recognition-python
+SpeechRecognition
 flask_discord
 loguru_logging_intercept
 youtube-dl
