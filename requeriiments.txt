@@ -1,0 +1,7 @@
+git+https://github.com/Rapptz/discord.py/
+flask
+PyNaCl
+pafy
+youtube_search
+requests
+git+https://github.com/romanin-rf//mtg.py
