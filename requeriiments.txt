@@ -1,8 +1,9 @@
 git+https://github.com/Rapptz/discord.py/
 flask
 PyNaCl
+youtube-dl
+loguru
 git+https://github.com/mps-youtube/pafy
 youtube_search
 requests
-youtube-dl
 git+https://github.com/romanin-rf//mtg.py
