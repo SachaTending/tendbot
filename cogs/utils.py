@@ -3,7 +3,7 @@ from flask import request
 import discord
 import loguru
 import pydustry
-import os
+import os, io
 from ping3 import ping as ping_lib
 #import dnspython as dns
 import dns.resolver
@@ -222,7 +222,13 @@ class Utils(commands.Cog):
 	async def on_command_error(self, ctx, err):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
-		logger.error(traceback.format_exc())
+		buf = io.StringIO()
+		traceback.print_exception(err.original, file=buf)
+		buf.seek(0)
+		out = buf.read()
+		logger.error(f"\n{out}")
+		e.add_field(name="\b", value=out)
+		await ctx.send(embed=e)
 		#except: pass
 
 	@commands.command()

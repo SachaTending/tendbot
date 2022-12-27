@@ -122,7 +122,7 @@ async def shutdown(ctx):
 	await ctx.send("Выключение...")
 	sys.exit(0)
 
-@bot.event
+
 async def on_command_error(ctx, err):
 	e = discord.Embed(color=0xff0000, title="Ошибка!")
 	logger.error("Error!")
