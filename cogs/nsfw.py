@@ -279,7 +279,7 @@ class rule34Py():
 			_tags = post["tags"]
 			"""
 
-			posts.append(Post(response.id, response.image, "none", response.tags, response.size, 0))
+			posts.append(Post(post.id, post.image, "none", post.tags, post.size, 0))
 
 		return posts
 
