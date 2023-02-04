@@ -251,6 +251,7 @@ class rule34Py():
 	def __init__(self):
 		#self.url = "https://r34-json-api.herokuapp.com/posts"
 		#self.client = aiohttp.ClientSession()
+		pass
 
 	async def search(self, tags = None, page_id = None, limit = 1000):
 		params = {
