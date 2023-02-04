@@ -7,6 +7,9 @@ import aiohttp
 import random
 import os
 import time
+from rule34Py import rule34Py
+
+r34Py = rule34Py()
 
 logger = logging.getLogger("NSFW")
 
@@ -246,8 +249,8 @@ class Nsfw(commands.Cog):
 		info("Done!")
 class rule34Py():
     def __init__(self):
-        self.url = "https://r34-json-api.herokuapp.com/posts"
-        self.client = aiohttp.ClientSession()
+        #self.url = "https://r34-json-api.herokuapp.com/posts"
+        #self.client = aiohttp.ClientSession()
 
     async def search(self, tags = None, page_id = None, limit = 1000):
         params = {
@@ -259,20 +262,23 @@ class rule34Py():
             params["page_id"] = str(page_id)
         
         response = []
-        async with self.client.get(self.url, params = params) as session:
-            response = await session.json()
+        #async with self.client.get(self.url, params = params) as session:
+        #    response = await session.json()
+        response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=limit)
         
         posts = []
 
         for post in response:
+            """
             url = post["file_url"]
             source = post.get("source", None)
             id = post["id"]
             size = [post["width"], post["height"]]
             creator_id = post["creator_id"]
             _tags = post["tags"]
+            """
 
-            posts.append(Post(id, url, source, _tags, size, creator_id))
+            posts.append(Post(response.id, response.image, "none", response.tags, response.size, 0))
 
         return posts
 
