@@ -248,48 +248,48 @@ class Nsfw(commands.Cog):
 			await ctx.send(f"В сумме(найдено и заблокировано): {count2}")
 		info("Done!")
 class rule34Py():
-    def __init__(self):
-        #self.url = "https://r34-json-api.herokuapp.com/posts"
-        #self.client = aiohttp.ClientSession()
+	def __init__(self):
+		#self.url = "https://r34-json-api.herokuapp.com/posts"
+		#self.client = aiohttp.ClientSession()
 
-    async def search(self, tags = None, page_id = None, limit = 1000):
-        params = {
-            "limit": limit
-        }
-        if tags:
-            params["tags"] = "+".join(tags),
-        if page_id:
-            params["page_id"] = str(page_id)
-        
-        response = []
-        #async with self.client.get(self.url, params = params) as session:
-        #    response = await session.json()
-        response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=limit)
-        
-        posts = []
+	async def search(self, tags = None, page_id = None, limit = 1000):
+		params = {
+			"limit": limit
+		}
+		if tags:
+			params["tags"] = "+".join(tags),
+		if page_id:
+			params["page_id"] = str(page_id)
+		
+		response = []
+		#async with self.client.get(self.url, params = params) as session:
+		#	response = await session.json()
+		response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=limit)
+		
+		posts = []
 
-        for post in response:
-            """
-            url = post["file_url"]
-            source = post.get("source", None)
-            id = post["id"]
-            size = [post["width"], post["height"]]
-            creator_id = post["creator_id"]
-            _tags = post["tags"]
-            """
+		for post in response:
+			"""
+			url = post["file_url"]
+			source = post.get("source", None)
+			id = post["id"]
+			size = [post["width"], post["height"]]
+			creator_id = post["creator_id"]
+			_tags = post["tags"]
+			"""
 
-            posts.append(Post(response.id, response.image, "none", response.tags, response.size, 0))
+			posts.append(Post(response.id, response.image, "none", response.tags, response.size, 0))
 
-        return posts
+		return posts
 
 class Post:
-    def __init__(self, id, url, source, tags, size, creator_id):
-        self.id = id
-        self.size = size
-        self.source = source
-        self.url = url
-        self.creator_id = creator_id
-        self.tags = tags
+	def __init__(self, id, url, source, tags, size, creator_id):
+		self.id = id
+		self.size = size
+		self.source = source
+		self.url = url
+		self.creator_id = creator_id
+		self.tags = tags
 
 async def setup(bot):
 	print("Setup of nsfw cog called!")
