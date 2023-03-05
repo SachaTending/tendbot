@@ -223,7 +223,7 @@ class Utils(commands.Cog):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
 		buf = io.StringIO()
-		traceback.print_exception(err.original, file=buf)
+		traceback.print_exc(file=buf, limit=100)
 		buf.seek(0)
 		out = buf.read()
 		logger.error(f"\n{out}")
