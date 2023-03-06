@@ -56,7 +56,7 @@ info("Testing loguru...")
 debug("This is debug")
 info("This is info")
 warn("This is warning")
-error("This is error")
+logger.error("This is error")
 success("This is success")
 
 info("Intializating vars...")
@@ -103,8 +103,8 @@ class Bot(commands.Bot):
 					await bot.load_extension(f"cogs.{filename[:-3]}")
 					success(f"Loaded {filename}")
 				except Exception as e:
-					error(f"Failed to load {filename}")
-					error(f"{e}")
+					logger.error(f"Failed to load {filename}")
+					logger.error(f"{e}")
 
 		self.loop.create_task(self.startup())
 
