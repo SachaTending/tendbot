@@ -130,7 +130,7 @@ async def on_message(msg: discord.Message):
 	else:
 		if msg.content.startswith("|"):
 			ctx = bot.get_context(msg)
-			await bot.invoke(msg)
+			await bot.invoke(bot.get_context(msg))
 			command_executed_at_run += 1
 
 
