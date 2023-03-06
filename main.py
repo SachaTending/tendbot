@@ -22,6 +22,7 @@ from loguru_logging_intercept import setup_loguru_logging_intercept
 
 setup_loguru_logging_intercept(modules="discord")
 print("Patched discord to use loguru as default logger.")
+command_executed_at_run = 0
 #import logging_color
 #logging_color.monkey_patch()
 #print("Pacthed logging for colored output")
@@ -122,6 +123,16 @@ async def shutdown(ctx):
 	await ctx.send("Выключение...")
 	sys.exit(0)
 
+@bot.event
+async def on_message(msg: discord.Message):
+	if msg.content.startswith("||"):
+		return 0 # Ignore spoilers
+	else:
+		if msg.content.startswith("|"):
+			ctx = bot.get_context(msg)
+			await bot.invoke(msg)
+			command_executed_at_run += 1
+
 
 async def on_command_error(ctx, err):
 	e = discord.Embed(color=0xff0000, title="Ошибка!")
@@ -161,9 +172,9 @@ async def on_shutdown(*argv):
 
 def on_shutdown2(*argv):
 	try:
-	    loop = asyncio.get_running_loop()
+		loop = asyncio.get_running_loop()
 	except RuntimeError:  # 'RuntimeError: There is no current event loop...'
-	    loop = None
+		loop = None
 	asyncio.run_coroutine_threadsafe(on_shutdown(*argv), loop)
 
 #signal.signal(signal.SIGCHLD, on_shutdown2)
@@ -193,6 +204,13 @@ async def load_cog(ctx, cog):
 async def uptime(ctx):
 	uptime = str(datetime.timedelta(seconds=int(round(time.time()-startTime))))
 	await ctx.send(uptime)
+
+@bot.command()
+async def stat(ctx: commands.Context):
+	uptime = str(datetime.timedelta(seconds=int(round(time.time()-startTime))))
+	stat_info = f"```\nUptime: {uptime}"
+	stat_info += f"\nExecuted commands(collected by on_message event): {command_executed_at_run}```"
+	await ctx.send(stat_info)
 
 info("Intializating cogs...")
 

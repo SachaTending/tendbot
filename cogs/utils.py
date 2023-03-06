@@ -223,7 +223,7 @@ class Utils(commands.Cog):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
 		buf = io.StringIO()
-		traceback.print_exc(file=buf, limit=100)
+		traceback.print_exc(file=buf, limit=1000)
 		buf.seek(0)
 		out = buf.read()
 		logger.error(f"\n{out}")
@@ -288,5 +288,5 @@ async def setup(bota):
 	bot = bota
 	info("Setup of utils cog called!")
 	await bota.add_cog(Utils(bot))
-	await bota.tree.sync()  # If you want to define specific guilds, pass a discord object with id (Currently, this is global)
-	info("Commands synced.")
+	#await bota.tree.sync()  # If you want to define specific guilds, pass a discord object with id (Currently, this is global)
+	#info("Commands synced.")
