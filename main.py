@@ -123,6 +123,10 @@ async def shutdown(ctx):
 	await ctx.send("Выключение...")
 	sys.exit(0)
 
+def increment_commands():
+	global command_executed_at_run
+	command_executed_at_run += 1
+
 @bot.event
 async def on_message(msg: discord.Message):
 	if msg.content.startswith("||"):
@@ -131,7 +135,7 @@ async def on_message(msg: discord.Message):
 		if msg.content.startswith("|"):
 			ctx = bot.get_context(msg)
 			await bot.invoke(await bot.get_context(msg))
-			command_executed_at_run += 1
+			increment_commands()
 
 
 async def on_command_error(ctx, err):
