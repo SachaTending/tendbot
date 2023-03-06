@@ -34,5 +34,5 @@ async def setup(bot):
 	logger.info("Loading...")
 	await bot.add_cog(Testing(bot))
 	logger.info("Syncing command tree...")
-	await bot.tree.sync()
+	#await bot.tree.sync()
 	logger.success("Done!")
