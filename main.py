@@ -1,4 +1,4 @@
-print("Tendhost bot v1.1.3 is starting now...")
+print("Tendhost bot v1.1.4 is starting now...")
 import discord
 from discord.ext import commands
 print("Loaded discord.py")
