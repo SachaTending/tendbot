@@ -442,7 +442,7 @@ class Music(commands.Cog):
 		apistatusjson["author"] = "none"
 		servers[server_id]["queuelist"] = []
 		servers[server_id]["vc"].stop()
-	@commands.command()
+	@commands.command(aliases=["s"])
 	async def skip(self, ctx):
 		server_id = ctx.guild.id
 		apistatusjson["playing"] = "false"
