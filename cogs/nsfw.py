@@ -265,7 +265,7 @@ class rule34Py():
 		response = []
 		#async with self.client.get(self.url, params = params) as session:
 		#	response = await session.json()
-		response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=limit)
+		response = r34Py.search(tags=params.get("tags").split("+"), page_id=params.get("page_id", 1), limit=limit)
 		
 		posts = []
 
