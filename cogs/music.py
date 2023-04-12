@@ -128,10 +128,14 @@ def queue_sanitizer():
 	while sanitizer_active:
 		for i in servers:
 			serv = servers[i]
-			if (not serv['vc'].is_playing()) and (not len(serv['queuelist']) == 0):
-				info(f"Sanitizing...")
-				serv['queuelist'] = []
-				servers[i] = serv
+			try:
+				if (not serv['vc'].is_playing()) and (not len(serv['queuelist']) == 0):
+					info(f"Sanitizing...")
+					serv['queuelist'] = []
+					servers[i] = serv
+			except Exception as e:
+				error(f'sanitizer error, {e}')
+				traceback.print_exception(e)
 	info("Quiting sanitizer thread.")
 	sanitizer_done = True
 
