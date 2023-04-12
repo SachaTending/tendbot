@@ -122,7 +122,7 @@ def on_complete_playing(e, server_id):
 
 sanitizer_active: bool = True
 sanitizer_done: bool = False
-
+import time
 def queue_sanitizer():
 	info("Queue sanitizer thread started!")
 	while sanitizer_active:
@@ -136,6 +136,7 @@ def queue_sanitizer():
 			except Exception as e:
 				error(f'sanitizer error, {e}')
 				traceback.print_exception(e)
+			time.sleep(0.5)
 	info("Quiting sanitizer thread.")
 	sanitizer_done = True
 
@@ -498,6 +499,7 @@ async def setup(bot):
 	await bot.add_cog(Music(bot))
 
 async def teardown(bot):
+	global sanitizer_active
 	info("Leaving...")
 	for i in servers:
 		try:
