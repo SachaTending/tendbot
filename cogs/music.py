@@ -11,11 +11,9 @@ from typing import Optional
 
 app = Flask("Music")
 
-try: logger = logging.getLogger("Music")
-except:
-	print("Using loguru")
-	__name__ = "Music"
-	logger = loguru.logger
+print("Using loguru")
+__name__ = "Music"
+logger = loguru.logger
 
 info = logger.info
 error = logger.error
@@ -26,10 +24,6 @@ pausestate = False
 userstate = "none"
 botdebug=False
 currentradio = "main"
-
-blockedusers =[
-	
-]
 
 apistatusjson = {
 	"playing": "false",
@@ -59,7 +53,7 @@ radiodb = {
 	"phonk": 43174
 }
 
-servers = {}
+servers: dict = {}
 
 def imp(mod): return __import__(mod)
 
@@ -126,6 +120,29 @@ def on_complete_playing(e, server_id):
 			apistatusjson = queuelist[0]
 			servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuelist[0]["playurl"]), after=lambda e: on_complete_playing(e, server_id))
 
+sanitizer_active: bool = True
+sanitizer_done: bool = False
+
+def queue_sanitizer():
+	info("Queue sanitizer thread started!")
+	while sanitizer_active:
+		for i in servers:
+			serv = servers[i]
+			if (not serv['vc'].is_playing()) and (not len(serv['queuelist']) == 0):
+				info(f"Sanitizing...")
+				serv['queuelist'] = []
+				servers[i] = serv
+	info("Quiting sanitizer thread.")
+	sanitizer_done = True
+
+
+def play_music(ctx: commands.Context, queuedata, video: pafy.pafy.Pafy):
+	_embed = discord.Embed(color=0x0080ff)
+	match queuedata['type']:
+		case 'ytdl':
+			_embed.add_field(value=f"[{video.title} by {video.author}]({queuedata['url']})", name="Сейчас играет")
+			_embed.set_image(url=video.thumb)
+
 class Music(commands.Cog):
 	def __init__(self, bot):
 		info("Intializating Music cog...")
@@ -146,7 +163,7 @@ class Music(commands.Cog):
 			if connected != None:
 				servers[server_id]["vc"] = await connected.channel.connect()
 			else:
-				raise RuntimeException('Сначала зайди в войс.')
+				raise RuntimeError('Сначала зайди в войс.')
 		except Exception as e:
 			info(e)
 		queuelist = servers[server_id]["queuelist"]
@@ -164,8 +181,8 @@ class Music(commands.Cog):
 				try:
 					info("Trying to get audio url...")
 					video = pafy.new(url)
-					if len(queuelist) == 0:
-						info("Queue is empty.")
+					if not servers[server_id]["vc"].is_playing():
+						info("Not playing.")
 						#apistatusjson["playing"] = "true"
 						#apistatusjson["type"] = "ytdl"
 						#apistatusjson["name"] = str(video.title)
@@ -468,8 +485,12 @@ class Music(commands.Cog):
 				elif i["type"] == "file": embed.add_field(name="Файл", value=f"[{i['name']}]({i['url']})")
 		await ctx.send(embed=embed)
 
+import threading
+
 async def setup(bot):
 	info("Setup of Music cog called!")
+	th = threading.Thread(target=queue_sanitizer)
+	th.start()
 	await bot.add_cog(Music(bot))
 
 async def teardown(bot):
@@ -480,5 +501,9 @@ async def teardown(bot):
 			await servers[i]["vc"].disconnect()
 		except Exception as e:
 			error(traceback.format_exc())
+	info("Shutting down sanitizer...")
+	sanitizer_active = False
+	while not sanitizer_done:
+		pass
 	info("Done!")
 	
