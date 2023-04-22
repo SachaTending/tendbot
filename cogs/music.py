@@ -157,7 +157,8 @@ class Music(commands.Cog):
 		def gendochtmlamogus(): return "<p>indev</p>"
 
 	@commands.command(aliases=["p"])
-	async def play(self, ctx, *, url=None):
+	async def play(self, ctx: commands.Context, *, url=None):
+		await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
 		server_id = ctx.guild.id
 		if server_id in servers:
 			pass
@@ -374,7 +375,13 @@ class Music(commands.Cog):
 			await ctx.send("Nothing is playing")
 		elif apistatusjson["type"] == "radio":
 			await ctx.send("Radio is playing now.")
-	
+	@commands.command()
+	async def mfix(self, ctx: commands.Context):
+		if servers[ctx.guild.id]['vc'].is_playing() and servers[ctx.guild.id]['queuelist'] != []:
+			await ctx.send("нечего ченить.")
+		if (servers[ctx.guild.id]['vc'].is_playing() == True and servers[ctx.guild.id]['queuelist'] == []) or (servers[ctx.guild.id]['vc'].is_playing() == False and servers[ctx.guild.id]['queuelist'] != []):
+			servers[ctx.guild.id]['queuelist'] = []
+			await ctx.send("Список воспроизведения очишен.")
 	@commands.command()
 	async def join(self, ctx):
 		connected = ctx.author.voice
@@ -464,8 +471,9 @@ class Music(commands.Cog):
 		apistatusjson["author"] = "none"
 		servers[server_id]["queuelist"] = []
 		servers[server_id]["vc"].stop()
+		await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
 	@commands.command(aliases=["s"])
-	async def skip(self, ctx):
+	async def skip(self, ctx: commands.Context):
 		server_id = ctx.guild.id
 		apistatusjson["playing"] = "false"
 		apistatusjson["type"] = "idle"
@@ -476,6 +484,7 @@ class Music(commands.Cog):
 		servers[server_id]["loopstate"] = "off"
 		servers[server_id]["vc"].stop()
 		servers[server_id]["loopstate"] = l
+		await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
 	@commands.command(aliases=["q"])
 	async def queue(self, ctx):
 		server_id = ctx.guild.id

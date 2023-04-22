@@ -56,7 +56,7 @@ class Utils(commands.Cog):
 		global apidb
 		self.apidb = ConfMan.DB("API.API_DB.json")
 		apidb = self.apidb
-		self.bot = bota
+		self.bot: commands.Bot = bota
 		bot = bota
 		self.r = sr.Recognizer()
 		@bot.tree.context_menu(name='Дата входа на сервер')
@@ -191,7 +191,8 @@ class Utils(commands.Cog):
 		await ctx.send(embed=e)
 
 	@commands.command(aliases=['avatar'])
-	async def аватар(self, ctx, member: discord.Member=0):
+	async def аватар(self, ctx, member: int=0):
+		member = discord.Member(data=member)
 		if member.id == 0: member = ctx.author
 		info(member.avatar)
 		await ctx.send(member.avatar)
@@ -223,7 +224,7 @@ class Utils(commands.Cog):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
 		buf = io.StringIO()
-		traceback.print_exc(file=buf, limit=1000)
+		traceback.print_exception(err, value=err, file=buf, limit=1000)
 		buf.seek(0)
 		out = buf.read()
 		logger.error(f"\n{out}")
