@@ -124,6 +124,7 @@ sanitizer_active: bool = True
 sanitizer_done: bool = False
 import time
 def queue_sanitizer():
+	global sanitizer_done
 	info("Queue sanitizer thread started!")
 	while sanitizer_active:
 		for i in servers:
