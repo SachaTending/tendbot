@@ -71,11 +71,11 @@ intents.message_content = True
 
 info("Intializating base commands...")
 
-# diskord.py commands section start
+# discord.py commands section start
 
 async def is_owner(ctx):
 	info(f"Requested bot admin command! Checking... {ctx.author.name}")
-	if ctx.author.id == 773136208439803934 or ctx.author.id == 775749058119204884 or 892823120283594804 == ctx.author.id or ctx.author.id == 483833827563798552:
+	if ctx.author.id in [773136208439803934, 775749058119204884, 892823120283594804, 483833827563798552]:
 		info("This is admin/owner of the bot, can continue execution")
 		return True
 	else:
@@ -86,6 +86,7 @@ async def is_owner(ctx):
 #@bot.user_command()
 #async def slap(ctx, user):
 #	await ctx.respond(f'{ctx.author.name} дал лещя {user.name}')
+
 class Bot(commands.Bot):
 	def __init__(self, intents):
 		super().__init__(command_prefix=prefix, intents=intents)
@@ -129,17 +130,14 @@ def increment_commands():
 
 @bot.event
 async def on_message(msg: discord.Message):
-	if msg.content.startswith("||"):
-		return 0 # Ignore spoilers
-	else:
-		if msg.content.startswith("|"):
-			ctx = bot.get_context(msg)
-			await bot.invoke(await bot.get_context(msg))
-			increment_commands()
+	ctx = await bot.get_context(msg)
+	if ctx.command:
+		await bot.invoke(ctx)
+		increment_commands()
 
 
 async def on_command_error(ctx, err):
-	e = discord.Embed(color=0xff0000, title="Ошибка!")
+	e = discord.Embed(color=0xff0000, title="Ошибка!", description="Traceback most recent call")
 	logger.error("Error!")
 	try: 
 		info(dir(err))
@@ -151,13 +149,12 @@ async def on_command_error(ctx, err):
 			info(i)
 	except:
 		info(err)
-	e.add_field(name="Traceback most recent call", value="***костыль чтобы работало***", inline=False)
 	try:
 		for i in err:
-			e.add_field(name=f"***костыль чтобы работало***", value=str(i), inline=True)
+			e.description += "\n" + str(i)
 	except Exception as er:
-		print(er)
-		e.add_field(name=f"***костыль чтобы работало***", value=str(err), inline=False)
+		print(err)
+		e.description += "\n" + str(err)
 	await ctx.send(embed=e)
 
 @bot.event
@@ -202,7 +199,7 @@ async def unload_cog(ctx, cog):
 async def load_cog(ctx, cog):
 	await bot.load_extension(cog)
 
-# diskord.py commands section end
+# discord.py commands section end
 
 @bot.command()
 async def uptime(ctx):
@@ -218,14 +215,14 @@ async def stat(ctx: commands.Context):
 
 info("Intializating cogs...")
 
-# diskord.py cogs section
+# discord.py cogs section
 async def load_all_cogs():
 	await bot.load_extension("cogs.nsfw")
 	await bot.load_extension("cogs.economy")
 	# bot.load_extension("cogs.AMOGUS")
 	await bot.load_extension("cogs.utils")
 	await bot.load_extension("cogs.tendai")
-# diskord.py cogs section
+# discord.py cogs section
 
 #asyncio.run(load_all_cogs())
 
