@@ -223,8 +223,9 @@ class Utils(commands.Cog):
 	async def on_command_error(self, ctx, err):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.error("Error!")
-		buf = io.StringIO()
-		traceback.print_exception(err, value=err, file=buf, limit=1000)
+		buf = io.StringIO();error = getattr(err, "original", err)
+		traceback.print_exception(type(error), error, error.__traceback__, file=buf, limit=250)
+
 		buf.seek(0)
 		out = buf.read()
 		logger.error(f"\n{out}")
