@@ -256,9 +256,9 @@ class rule34Py():
 	async def search(self, tags = None, page_id = None, limit = 1000):
 		params = {
 			"limit": limit
-		}
+		};print("a")
 		if tags:
-			params["tags"] = "+".join(tags),
+			params["tags"] = "+".join(tags[0]),
 		if page_id:
 			params["page_id"] = str(page_id)
 		
