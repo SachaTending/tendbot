@@ -258,14 +258,15 @@ class rule34Py():
 			"limit": limit
 		};print("a")
 		if tags:
-			params["tags"] = "+".join(tags[0]),
+			params["tags"] = list(tags)
 		if page_id:
 			params["page_id"] = str(page_id)
 		
-		response = []
+		response = [];print(params.get("tags"))
+
 		#async with self.client.get(self.url, params = params) as session:
 		#	response = await session.json()
-		response = r34Py.search(tags=params.get("tags").split("+"), page_id=params.get("page_id", 1), limit=limit)
+		response = r34Py.search(tags=params.get("tqgs"), page_id=params.get("page_id", 1), limit=limit)
 		
 		posts = []
 
