@@ -7,9 +7,9 @@ import aiohttp
 import random
 import os
 import time
-from rule34Py import rule34Py
+from rule34Py import rule34Py as rpy
 
-r34Py = rule34Py()
+r34Py = rpy()
 
 logger = logging.getLogger("NSFW")
 
@@ -102,7 +102,9 @@ class Nsfw(commands.Cog):
 		r34tags = str(r34tags)
 		info(f"rule34 tags: {r34tags}")
 		blocked_tags_list = []
-		posts = await self.rule34.search(tags=(r34tags.split(" ")), limit=count,page_id=page_id) 
+		tags = r34tags
+		if len(tags.split("+")) > 1: tags = tags.split("+")
+		posts = await self.rule34.search(tags=tags, limit=count,page_id=page_id) 
 		blocked_tags = 0
 		if posts != []:
 			for i in posts:
@@ -112,15 +114,9 @@ class Nsfw(commands.Cog):
 				info(len(tags))
 				tags_text = ""
 				info("Creating embed...")
-				#lengh = 2000-len(i.url)
 				if True:
-					#logging.warn("Lengh of tegs over 2000!")
-					#logging.warn(tags)
-					#logging.warn(len(tags))
-					#logging.warn("Skipping...")
 					skip = False
 				else:
-					#tags_text = f"Tags:{tags}" + "\n" + i.url
 					pass
 				if "furry" in i.tags or "younger_futanari" in i.tags or "futurani" in i.tags or "my_little_pony" in i.tags or "yaoi" in i.tags or "animal_penis" in i.tags or "fur" in i.tags or "cannibalism" in i.tags:
 					blocked_tags += 1
@@ -132,22 +128,13 @@ class Nsfw(commands.Cog):
 								blocked_tags_list.append(tag)
 					info("Founded blocked tag!, Skipping...")
 					skip = True
-				#e.set_image(url=i.url)
 				info(f"URL: {i.url}")
 				if skip == False:
 					file_name = 0
 					info(f"Founded tags: {i.tags}")
 					if i.url.endswith(".mp4"):
-						#tags_text = f"Tags: {tags}" + "\nSource: " + i.source + "\n" + i.url
-						#tags_text = f"Tags: {tags}"
-						#file_name += 1
-						#os.system(f'ffmpeg -i {i.url} -filter_complex "fps=10,scale=-1:640,crop=ih:ih,setsar=1,palettegen" /tmp/{file_name}.png')
-						#os.system(f'ffmpeg -i {i.url} -i /tmp/{file_name}.png -filter_complex "[0]fps=10,scale=-1:640,crop=ih:ih,setsar=1[x];[x][1:v]paletteuse" /tmp/{file_name}.gif')
-						#os.remove(f"/tmp/{file_name}.png")
-						#embeds.append({"tags_text": tags_text, "embed": tags_text, "file": None})
 						pass
 					tags_text = f"Tags: {tags}" + "\nSource: " + i.source + "\n" + i.url
-					#print(i.tags)
 					embeds.append({"tags_text": tags_text, "embed": tags_text, "file": None})
 				elif skip == True:
 					info("Skipped.")
@@ -165,9 +152,6 @@ class Nsfw(commands.Cog):
 					pass
 			else:
 				await ctx.send(tags, file=file)
-			#await ctx.send(embed=embed)
-			#time.sleep(1)
-			#os.remove(file)
 		await ctx.send(f"Было найдено: {sended}")
 		if blocked_tags == 0:
 			pass
@@ -179,24 +163,27 @@ class Nsfw(commands.Cog):
 			await ctx.send(f"В сумме(найдено и заблокировано): {count2}")
 		info("Done!")
 	@commands.command(brief="Подсчитать количество nsfw по тэгу")
-	async def r34count(self, ctx, r34tags="random", count=2000):
+	async def r34count(self, ctx, r34tags="random", count=1000):
 		#if ctx.author.id == 775749058119204884:
 		#	raise RuntimeError("ERROR")
 		embeds = []		
 		count = int(count)
 		r34tags = str(r34tags)
 		info(f"rule34 tags: {r34tags}")
-		page_id = random.randint(1,1000)
 		blocked_tags_list = []
 		posts = []
+		tags = r34tags
+		if len(tags.split("+")) > 1: tags = tags.split("+")
+		page_id = random.randint(1, 1000)
 		await ctx.send("Поиск...")
 		if count > 1000:
 			for i in range(1,int(self.justafunc(count))):
-				posts.append(await self.rule34.search(tags=(r34tags.split(" ")), limit=1000,page_id=i))
+				posts.append(await self.rule34.search(tags=tags, limit=count,page_id=page_id))
 			old_posts = posts
 			posts = self.calculate_posts(posts)
 		blocked_tags = 0
 		count2 = 0
+		print(posts)
 		if posts != []:
 			await ctx.send("Подсчёт...")
 			for i in posts:
@@ -224,7 +211,7 @@ class Nsfw(commands.Cog):
 								pass
 							else:
 								blocked_tags_list.append(tag)
-					info("Founded blocked tag!, Skipping...")
+					info("Found blocked tag!, Skipping...")
 					skip = True
 				#e.set_image(url=i.url)
 				info(f"URL: {i.url}")
@@ -249,25 +236,29 @@ class Nsfw(commands.Cog):
 		info("Done!")
 class rule34Py():
 	def __init__(self):
-		#self.url = "https://r34-json-api.herokuapp.com/posts"
+		#self.url = "https://api.rule34.xxx/index.php"
 		#self.client = aiohttp.ClientSession()
 		pass
-
 	async def search(self, tags = None, page_id = None, limit = 1000):
 		params = {
-			"limit": limit
-		};print("a")
+			"limit": limit,
+			"page": "dapi",
+			"s": "post",
+			"q": "index",
+			"json": "1"
+		}
+		info(params)
 		if tags:
 			params["tags"] = list(tags)
 		if page_id:
 			params["page_id"] = str(page_id)
-		
-		response = [];print(params.get("tags"))
+		if params['limit'] == None: params['limit'] = 999
+		response = []
 
 		#async with self.client.get(self.url, params = params) as session:
 		#	response = await session.json()
-		response = r34Py.search(tags=params.get("tqgs"), page_id=params.get("page_id", 1), limit=limit)
-		
+		#	info(response)
+		response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=int(params.get("limit")))
 		posts = []
 
 		for post in response:
@@ -279,8 +270,7 @@ class rule34Py():
 			creator_id = post["creator_id"]
 			_tags = post["tags"]
 			"""
-
-			posts.append(Post(post.id, post.image, "none", post.tags, post.size, 0))
+			#posts.append(Post(post.id, post.image, "none", post.tags, post.size, 0))
 
 		return posts
 
