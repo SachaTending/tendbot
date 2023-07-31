@@ -148,7 +148,7 @@ async def on_command_error(ctx: commands.Context, err):
 	a = strio.read()
 	b = False
 	if len(a) > 4000:
-		b = a[len(a):len("``````...")]
+		b = a[len(a):len(a)-len("``````...")]
 	await ctx.send(f"```Error\nServer: {ctx.guild.name}, {ctx.guild.id}\nUser: {ctx.author.name}, {ctx.author.id}\nMessage: {ctx.message.content}```")
 	await ctx.send(f"```{a[0:len('``````')]}```")
 	if b:
