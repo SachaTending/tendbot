@@ -12,6 +12,7 @@ import speech_recognition as sr
 from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
 import ConfMan, random
 from subprocess import Popen, PIPE
+from io import StringIO
 
 try: logger = logging.getLogger("Utils")
 except:
@@ -220,18 +221,23 @@ class Utils(commands.Cog):
 		if out != None: await ctx.send('```\n'+out+'\n```')
 
 	@commands.Cog.listener()
-	async def on_command_error(self, ctx, err):
+	async def on_command_error(ctx: commands.Context, err):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
-		logger.error("Error!")
-		buf = io.StringIO();error = getattr(err, "original", err)
-		traceback.print_exception(type(error), error, error.__traceback__, file=buf, limit=250)
-
-		buf.seek(0)
-		out = buf.read()
-		logger.error(f"\n{out}")
-		e.add_field(name="\b", value=out)
-		await ctx.send(embed=e)
-		#except: pass
+		logger.exception("Error!")
+		traceback.print_exception(err)
+		strio = StringIO()
+		traceback.print_exception(err, file=strio)
+		strio.seek(0)
+		a = strio.read()
+		b = False
+		if len(a) > 4000:
+			b = a[len(a):len("``````...")]
+		await ctx.send(f"```Error\nServer: {ctx.guild.name}, {ctx.guild.id}\nUser: {ctx.author.name}, {ctx.author.id}\nMessage: {ctx.message.content}```")
+		await ctx.send(f"```{a[0:len('``````')]}```")
+		if b:
+			await ctx.send(f"```{b}```")
+		try: await ctx.send(embed=e)
+		except: await ctx.send(f"Ошибка, {err}.")
 
 	@commands.command()
 	#@commands.is_owner()
