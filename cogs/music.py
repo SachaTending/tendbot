@@ -196,6 +196,8 @@ class Music(commands.Cog):
 						#apistatusjson["author"] = str(video.author)
 						#apistatusjson["url"] = str(url)
 						audio = video.getbestaudio(preftype="m4a")
+						info("Downloading...")
+						msg = await ctx.send("Идёт загрузка, подождите...")
 						info("Playing...")
 						queuefile = {
 							"playing": "true",

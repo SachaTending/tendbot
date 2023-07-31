@@ -9,15 +9,15 @@ class Bundle():
 	def get(self, servid=0, target=""):
 		lang = self.bundledb.get(servid, "en_US")
 		l = self.getbundlelang(lang)
-		info(l)
 		return l.get(target, target)
+	def setlang(self, servid: int=0, lang: str="ru_RU"):
+		self.bundledb[servid] = lang
+		json.dump(self.bundledb, open("bundledb.json", "w"))
 	def getbundlelang(self, lang):
 		if lang in self.cached:
-			info(1)
 			lng = hash(open(f"bundles/{lang}.bundle").read())
 			if self.cached[lang]['hash'] != lng:
 				lng = self.parselang(lang)
-				info(2)
 				self.cached[lang]['hash'] = hash(open(f"bundles/{lang}.bundle").read())
 				self.cached[lang]['lang'] = lng
 				return self.cached[lang]['lang']
@@ -27,7 +27,6 @@ class Bundle():
 			try:
 				l = self.parselang(lang)
 				self.cached[lang] = {}
-				info(3)
 				self.cached[lang]['hash'] = hash(open(f"bundles/{lang}.bundle").read())
 				self.cached[lang]['lang'] = l
 				return self.cached[lang]['lang']

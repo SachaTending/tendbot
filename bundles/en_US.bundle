@@ -1,5 +1,7 @@
 bot.name:TendBot
 bot.author:TendingStream73#5806
-bot.error:Error! Traceback:
+bot.error:Error.
+lang.notvalid:Invalid language: {lang}
 music.now_playing:Now playing
 music.added_to_queue:Added to queue
+music.downloading:Downloading, please wait...

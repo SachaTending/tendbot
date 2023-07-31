@@ -1,0 +1,7 @@
+bot.name:TendBot
+bot.author:TendingStream73#5806
+lang.notvalid:Неправильный язык: {lang}
+bot.error:Ошибка.
+music.now_playing:Сейчас играет
+music.added_to_queue:Добавлено в очередь
+music.downloading:Загрузка, пожалуйста подождите...
