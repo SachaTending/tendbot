@@ -231,9 +231,9 @@ class Utils(commands.Cog):
 		a = strio.read()
 		b = False
 		if len(a) > 4000:
-			b = a[len(a):len("``````...")]
+			b = a[len(a):len(a)-len("``````...")]
 		await ctx.send(f"```Error\nServer: {ctx.guild.name}, {ctx.guild.id}\nUser: {ctx.author.name}, {ctx.author.id}\nMessage: {ctx.message.content}```")
-		await ctx.send(f"```{a[0:len('``````')]}```")
+		await ctx.send(f"```{a[0:len(a)-len('``````')]}```")
 		if b:
 			await ctx.send(f"```{b}```")
 		try: await ctx.send(embed=e)
