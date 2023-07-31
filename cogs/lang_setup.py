@@ -10,7 +10,7 @@ class LangSetup(commands.Cog):
     async def bruh(self, guild: discord.Guild):
         await guild.channels[0].send("Thanks for adding me, you can set my language using command |lang lang\nExample: To set english: |lang en_US\nTo set russian: |lang ru_RU\nMy default language is english.")
         self.bundle.setlang(guild.id, "en_US")
-    @commands.Command(help="Sets language for server, if language is valid, bot sends nothing.")
+    @commands.command(help="Sets language for server, if language is valid, bot sends nothing.")
     @commands.has_permissions(manage_roles=True, ban_members=True, administrator=True)
     async def lang(self, ctx: commands.Context, lang, *argv):
         if self.bundle.getbundlelang(lang) == {}:
