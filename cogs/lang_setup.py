@@ -17,3 +17,6 @@ class LangSetup(commands.Cog):
             await ctx.send(self.bundle.get(ctx.guild.id, "lang.notvalid").format(lang=lang))
         else:
             self.bundle.setlang(ctx.guild.id, lang)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(LangSetup(bot))
