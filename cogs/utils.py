@@ -221,7 +221,7 @@ class Utils(commands.Cog):
 		if out != None: await ctx.send('```\n'+out+'\n```')
 
 	@commands.Cog.listener()
-	async def on_command_error(ctx: commands.Context, err):
+	async def on_command_error(self, ctx: commands.Context, err):
 		e = discord.Embed(color=0xff0000, title="Ошибка!")
 		logger.exception("Error!")
 		traceback.print_exception(err)
