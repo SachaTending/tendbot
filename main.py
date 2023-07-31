@@ -17,6 +17,8 @@ import datetime, time
 print("Loaded asyncio")
 import signal
 print("Loaded signal")
+import traceback
+from io import StringIO
 
 from loguru_logging_intercept import setup_loguru_logging_intercept
 
@@ -73,7 +75,7 @@ info("Intializating base commands...")
 
 # discord.py commands section start
 
-async def is_owner(ctx):
+async def is_owner(ctx: commands.Context):
 	info(f"Requested bot admin command! Checking... {ctx.author.name}")
 	if ctx.author.id in [773136208439803934, 775749058119204884, 892823120283594804, 483833827563798552]:
 		info("This is admin/owner of the bot, can continue execution")
@@ -118,7 +120,7 @@ async def error(ctx):
 
 @bot.command()
 @commands.check(is_owner)
-async def shutdown(ctx):
+async def shutdown(ctx: commands.Context):
 	if ctx.author.id != 773136208439803934:
 		raise RuntimeError("нет")
 	await ctx.send("Выключение...")
@@ -136,26 +138,23 @@ async def on_message(msg: discord.Message):
 		increment_commands()
 
 
-async def on_command_error(ctx, err):
-	e = discord.Embed(color=0xff0000, title="Ошибка!", description="Traceback most recent call")
-	logger.error("Error!")
-	try: 
-		info(dir(err))
-		info(dir(err.original))
-		info(err.original.with_traceback)
-	except: pass
-	try:
-		for i in err:
-			info(i)
-	except:
-		info(err)
-	try:
-		for i in err:
-			e.description += "\n" + str(i)
-	except Exception as er:
-		print(err)
-		e.description += "\n" + str(err)
-	await ctx.send(embed=e)
+async def on_command_error(ctx: commands.Context, err):
+	e = discord.Embed(color=0xff0000, title="Ошибка!")
+	logger.exception("Error!")
+	traceback.print_exception(err)
+	strio = StringIO()
+	traceback.print_exception(err, file=strio)
+	strio.seek(0)
+	a = strio.read()
+	b = False
+	if len(a) > 4000:
+		b = a[len(a):len("``````...")]
+	await ctx.send(f"```Error\nServer: {ctx.guild.name}, {ctx.guild.id}\nUser: {ctx.author.name}, {ctx.author.id}\nMessage: {ctx.message.content}```")
+	await ctx.send(f"```{a[0:len('``````')]}```")
+	if b:
+		await ctx.send(f"```{b}```")
+	try: await ctx.send(embed=e)
+	except: await ctx.send(f"Ошибка, {err}.")
 
 @bot.event
 async def on_ready(*argv):
@@ -179,7 +178,7 @@ def on_shutdown2(*argv):
 	asyncio.run_coroutine_threadsafe(on_shutdown(*argv), loop)
 
 #signal.signal(signal.SIGCHLD, on_shutdown2)
-signal.signal(signal.SIGTERM, on_shutdown2)
+signal.signal(signal.SIGTERM, on_shutdown2) 
 signal.signal(signal.SIGALRM, on_shutdown2)
 signal.signal(signal.SIGHUP, on_shutdown2)
 
