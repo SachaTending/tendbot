@@ -195,7 +195,7 @@ class Music(commands.Cog):
 						#apistatusjson["name"] = str(video.title)
 						#apistatusjson["author"] = str(video.author)
 						#apistatusjson["url"] = str(url)
-						audio = video.getbestaudio()
+						audio = video.getbestaudio(preftype="m4a")
 						info("Playing...")
 						queuefile = {
 							"playing": "true",
