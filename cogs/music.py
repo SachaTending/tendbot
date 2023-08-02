@@ -366,7 +366,7 @@ class Music(commands.Cog):
 							"playurl": url
 						}
 						servers[server_id]["queuelist"].append(queuefile)
-						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(), after=lambda e: on_complete_playing(e, server_id))
+						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(url), after=lambda e: on_complete_playing(e, server_id))
 						return
 					else:
 						queuefile = {
