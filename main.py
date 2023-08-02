@@ -228,6 +228,9 @@ async def load_all_cogs():
 info("Starting bot...")
 #@jit()
 def start():
+	try: 
+		if not os.path.exists("/tmp/tendbot"): os.mkdir("/tmp/tendbot", 777)
+	except: logger.exception("Error while creating /tmp/tendbot:")
 	bot.run(token)
 
 start()

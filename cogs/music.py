@@ -87,12 +87,14 @@ def checkyoutubeurl(url):
 	else:
 		info("This is not url!")
 		return "ytdl"
-
+import os
 def on_complete_playing(e, server_id):
 	info(e)
 	global apistatusjson
 	queuelist = servers[server_id]["queuelist"]
 	loopstate = servers[server_id]["loopstate"]
+	if queuelist[0]['playurl'].startswith("/tmp/tendbot/music-"):
+		os.remove(queuelist[0]['playurl'])
 	if queuelist == []:
 		info("Clearing api status...")
 		apistatusjson["playing"] = "false"
@@ -130,7 +132,7 @@ def queue_sanitizer():
 		for i in servers:
 			serv = servers[i]
 			try:
-				if (not serv['vc'].is_playing()) and (not len(serv['queuelist']) == 0):
+				if (not serv['vc'].is_playing()) and (not len(serv['queuelist'] == 0)):
 					info(f"Sanitizing...")
 					serv['queuelist'] = []
 					servers[i] = serv
@@ -159,7 +161,7 @@ class Music(commands.Cog):
 
 	@commands.command(aliases=["p"])
 	async def play(self, ctx: commands.Context, *, url=None):
-		await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
+		if __import__("random").randint(0, 10) == 5:await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
 		server_id = ctx.guild.id
 		if server_id in servers:
 			pass
@@ -198,6 +200,9 @@ class Music(commands.Cog):
 						audio = video.getbestaudio(preftype="m4a")
 						info("Downloading...")
 						msg = await ctx.send("Идёт загрузка, подождите...")
+						path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
+						audio.download(filepath=path, quiet=True)
+						await msg.delete()
 						info("Playing...")
 						queuefile = {
 							"playing": "true",
@@ -205,11 +210,11 @@ class Music(commands.Cog):
 							"name": video.title,
 							"author": video.author,
 							"url": url,
-							"playurl": audio.url
+							"playurl": path
 						}
 						servers[server_id]["queuelist"].append(queuefile)
 						#await ctx.send("Воспроизведение...")
-						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(audio.url), after=lambda e: on_complete_playing(e, server_id))
+						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['url']), after=lambda e: on_complete_playing(e, server_id))
 						_embed = discord.Embed(color=0x0080ff)
 						_embed.add_field(value=f"[{video.title} by {video.author}]({url})", name="Сейчас играет")
 						_embed.set_image(url=video.thumb)
@@ -217,13 +222,17 @@ class Music(commands.Cog):
 						return
 					else:
 						audio = video.getbestaudio()
+						msg = await ctx.send("Идёт загрузка, подождите...")
+						path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
+						audio.download(filepath=path, quiet=True)
+						await msg.delete()
 						queuefile = {
 							"playing": "true",
 							"type": "ytdl",
 							"name": video.title,
 							"author": video.author,
 							"url": url,
-							"playurl": audio.url
+							"playurl": path
 						}
 						servers[server_id]["queuelist"].append(queuefile)
 						_embed = discord.Embed(color=0x0080ff)
@@ -251,6 +260,11 @@ class Music(commands.Cog):
 							#apistatusjson["url"] = str(vidurl)
 							audio = video.getbestaudio()
 							info("Playing...")
+							info("Downloading...")
+							msg = await ctx.send("Идёт загрузка, подождите...")
+							path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
+							audio.download(filepath=path, quiet=True)
+							await msg.delete()
 							#await ctx.send("Воспроизведение...")
 							queuefile = {
 								"playing": "true",
@@ -258,9 +272,9 @@ class Music(commands.Cog):
 								"name": video.title,
 								"author": video.author,
 								"url": vidurl,
-								"playurl": audio.url
+								"playurl": path
 							}
-							servers[server_id]["vc"].play(discord.FFmpegPCMAudio(audio.url), after=lambda e: on_complete_playing(e, server_id))
+							servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['url']), after=lambda e: on_complete_playing(e, server_id))
 							servers[server_id]["queuelist"].append(queuefile)
 							_embed = discord.Embed(color=0x0080ff)
 							_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Сейчас играет")
@@ -269,6 +283,11 @@ class Music(commands.Cog):
 							return
 						else:
 							audio = video.getbestaudio()
+							info("Downloading...")
+							msg = await ctx.send("Идёт загрузка, подождите...")
+							path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
+							audio.download(filepath=path, quiet=True)
+							await msg.delete()
 							queuefile = {
 								"playing": "true",
 								"type": "ytdl",
@@ -284,9 +303,7 @@ class Music(commands.Cog):
 							await ctx.send(embed=_embed)
 							return
 					except:
-						error("Error!")
-						error("Traceback:")
-						error(traceback.format_exc())
+						logger.exception("Error: ")
 						raise RuntimeError("Error while getting music info.")
 			elif result == "playlist":
 				info("Getting videos from playlist...")
