@@ -132,7 +132,7 @@ def queue_sanitizer():
 		for i in servers:
 			serv = servers[i]
 			try:
-				if (not serv['vc'].is_playing()) and (not len(serv['queuelist'] == 0)):
+				if (not serv['vc'].is_playing()) and (not len(serv['queuelist'])  == 0):
 					info(f"Sanitizing...")
 					serv['queuelist'] = []
 					servers[i] = serv
