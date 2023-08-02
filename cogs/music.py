@@ -214,7 +214,7 @@ class Music(commands.Cog):
 						}
 						servers[server_id]["queuelist"].append(queuefile)
 						#await ctx.send("Воспроизведение...")
-						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['url']), after=lambda e: on_complete_playing(e, server_id))
+						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['playurl']), after=lambda e: on_complete_playing(e, server_id))
 						_embed = discord.Embed(color=0x0080ff)
 						_embed.add_field(value=f"[{video.title} by {video.author}]({url})", name="Сейчас играет")
 						_embed.set_image(url=video.thumb)
@@ -263,7 +263,7 @@ class Music(commands.Cog):
 							info("Downloading...")
 							msg = await ctx.send("Идёт загрузка, подождите...")
 							path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
-							os.system(f"ffmpeg -i \"{audio.url}\" {path}")
+							audio.download(filepath=path, quiet=True)
 							await msg.delete()
 							#await ctx.send("Воспроизведение...")
 							queuefile = {
@@ -274,7 +274,7 @@ class Music(commands.Cog):
 								"url": vidurl,
 								"playurl": path
 							}
-							servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['url']), after=lambda e: on_complete_playing(e, server_id))
+							servers[server_id]["vc"].play(discord.FFmpegPCMAudio(queuefile['playurl']), after=lambda e: on_complete_playing(e, server_id))
 							servers[server_id]["queuelist"].append(queuefile)
 							_embed = discord.Embed(color=0x0080ff)
 							_embed.add_field(value=f"[{video.title} by {video.author}]({vidurl})", name="Сейчас играет")
@@ -366,7 +366,7 @@ class Music(commands.Cog):
 							"playurl": url
 						}
 						servers[server_id]["queuelist"].append(queuefile)
-						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(url), after=lambda e: on_complete_playing(e, server_id))
+						servers[server_id]["vc"].play(discord.FFmpegPCMAudio(), after=lambda e: on_complete_playing(e, server_id))
 						return
 					else:
 						queuefile = {
