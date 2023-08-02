@@ -263,7 +263,7 @@ class Music(commands.Cog):
 							info("Downloading...")
 							msg = await ctx.send("Идёт загрузка, подождите...")
 							path = f"/tmp/tendbot/music-{ctx.guild.id}-{ctx.author.id}-{ctx.message.id}-{msg.id}.mp3"
-							audio.download(filepath=path, quiet=True)
+							os.system(f"ffmpeg -i {audio.url} {path}")
 							await msg.delete()
 							#await ctx.send("Воспроизведение...")
 							queuefile = {
