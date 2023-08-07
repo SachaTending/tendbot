@@ -262,6 +262,7 @@ class rule34Py():
 		#	response = await session.json()
 		#	info(response)
 		response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=int(params.get("limit")))
+		print(response)
 		posts = []
 
 		for post in response:
