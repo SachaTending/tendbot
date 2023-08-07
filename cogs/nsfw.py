@@ -265,6 +265,7 @@ class rule34Py():
 		posts = []
 
 		for post in response:
+			print(post)
 			url = post["file_url"]
 			source = post.get("source", None)
 			id = post["id"]
