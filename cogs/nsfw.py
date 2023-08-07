@@ -181,6 +181,8 @@ class Nsfw(commands.Cog):
 				posts.append(await self.rule34.search(tags=tags, limit=count,page_id=page_id))
 			old_posts = posts
 			posts = self.calculate_posts(posts)
+		else:
+			posts = await self.rule34.search(tags=tags, limit=count,page_id=page_id)
 		blocked_tags = 0
 		count2 = 0
 		print(posts)
