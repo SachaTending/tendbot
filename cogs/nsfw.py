@@ -262,15 +262,14 @@ class rule34Py():
 		posts = []
 
 		for post in response:
-			"""
 			url = post["file_url"]
 			source = post.get("source", None)
 			id = post["id"]
 			size = [post["width"], post["height"]]
 			creator_id = post["creator_id"]
 			_tags = post["tags"]
-			"""
 			#posts.append(Post(post.id, post.image, "none", post.tags, post.size, 0))
+			posts.append(Post(id, url, source, _tags, size, creator_id))
 
 		return posts
 
