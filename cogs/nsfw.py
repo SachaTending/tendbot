@@ -239,8 +239,8 @@ class Nsfw(commands.Cog):
 		info("Done!")
 class rule34Py():
 	def __init__(self):
-		#self.url = "https://api.rule34.xxx/index.php"
-		#self.client = aiohttp.ClientSession()
+		self.url = "https://api.rule34.xxx/index.php"
+		self.client = aiohttp.ClientSession()
 		pass
 	async def search(self, tags = None, page_id = None, limit = 1000):
 		params = {
@@ -258,15 +258,15 @@ class rule34Py():
 		if params['limit'] == None: params['limit'] = 999
 		response = []
 
-		#async with self.client.get(self.url, params = params) as session:
-		#	response = await session.json()
-		#	info(response)
-		response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=int(params.get("limit")))
-		print(response)
+		async with self.client.get(self.url, params = params) as session:
+			response = await session.json()
+			info(response)
+		#response = r34Py.search(tags=params.get("tags"), page_id=params.get("page_id", 1), limit=int(params.get("limit")))
+		#print(response)
 		posts = []
 
 		for post in response:
-			print(post)
+			#print(post)
 			url = post["file_url"]
 			source = post.get("source", None)
 			id = post["id"]
