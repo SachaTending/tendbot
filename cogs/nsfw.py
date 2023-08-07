@@ -182,8 +182,8 @@ class Nsfw(commands.Cog):
 			old_posts = posts
 			posts = self.calculate_posts(posts)
 		else:
+			print("a")
 			posts = await self.rule34.search(tags=tags, limit=count,page_id=page_id)
-		print(posts)
 		blocked_tags = 0
 		count2 = 0
 		print(posts)
