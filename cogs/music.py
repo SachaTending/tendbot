@@ -152,7 +152,14 @@ def play_music(ctx: commands.Context, queuedata, video: pafy.pafy.Pafy):
 			_embed.set_image(url=video.thumb)
 
 from typing import Callable
-
+qentrysheet = {
+	"playing": "true",
+	"type": "url",
+	"name": "",
+	"author": "",
+	"url": "",
+	"playurl": "path"
+}
 async def nghandl(ctx: commands.Context, url: str):
 	info("Getting id...")
 	ourl = url
@@ -167,7 +174,17 @@ async def nghandl(ctx: commands.Context, url: str):
 			await ctx.send(f"Неправильная ссылка {ourl}.\nПроверьте ссылку на наличие ошибок.")
 			return
 	info(f"ID: {url}")
-	await ctx.send(f"extracted id: {url}")
+	# Act as a normal url handler
+	q = qentrysheet
+	q['url'] = 'https://www.newgrounds.com/audio/download/'+url
+	q['playurl'] = 'https://www.newgrounds.com/audio/download/'+url
+	p = False
+	if len(servers[ctx.guild.id]) == 0:
+		p = True
+	servers[ctx.guild.id]['queue'].append(q)
+	if p:
+		servers[ctx.guild.id]['vc'].play(discord.FFmpegPCMAudio(q['playurl']), after=lambda e: on_complete_playing(e, ctx.guild.id))
+
 
 proto: list[dict[str, Callable[[commands.Context, str],None]]] = [
 	{
