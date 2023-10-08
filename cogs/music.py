@@ -161,7 +161,7 @@ async def nghandl(ctx: commands.Context, url: str):
 		url = url.removeprefix("https").removeprefix("http") # remove http(s) prefix stuff
 		url = url.removeprefix("://") # remove http(s) prefix stuff
 		url = url.removeprefix("www.").removeprefix("newgrounds.com").removeprefix("/") # remove newgrounds prefix
-		url = url.removeprefix("audio/").removesuffix("listen/").removesuffix("download/")
+		url = url.removeprefix("audio/").removesuffix("listen/").removesuffix("download/").removeprefix("download/").removeprefix("listen/")
 		if not url.isdigit():
 			info(f"well, url {ourl} not contains id.")
 			await ctx.send(f"Неправильная ссылка {ourl}.\nПроверьте ссылку на наличие ошибок.")
