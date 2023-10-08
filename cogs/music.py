@@ -179,9 +179,9 @@ async def nghandl(ctx: commands.Context, url: str):
 	q['url'] = 'https://www.newgrounds.com/audio/download/'+url
 	q['playurl'] = 'https://www.newgrounds.com/audio/download/'+url
 	p = False
-	if len(servers[ctx.guild.id]) == 0:
+	if len(servers[ctx.guild.id]['queuelist']) == 0:
 		p = True
-	servers[ctx.guild.id]['queue'].append(q)
+	servers[ctx.guild.id]['queuelist'].append(q)
 	if p:
 		servers[ctx.guild.id]['vc'].play(discord.FFmpegPCMAudio(q['playurl']), after=lambda e: on_complete_playing(e, ctx.guild.id))
 
