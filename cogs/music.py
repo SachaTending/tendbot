@@ -151,6 +151,31 @@ def play_music(ctx: commands.Context, queuedata, video: pafy.pafy.Pafy):
 			_embed.add_field(value=f"[{video.title} by {video.author}]({queuedata['url']})", name="Сейчас играет")
 			_embed.set_image(url=video.thumb)
 
+from typing import Callable
+
+async def nghandl(ctx: commands.Context, url: str):
+	info("Getting id...")
+	ourl = url
+	if not url.isdigit():
+		# Its likely a url, try to get id from here
+		url = url.removeprefix("https").removeprefix("http") # remove http(s) prefix stuff
+		url = url.removeprefix("://") # remove http(s) prefix stuff
+		url = url.removeprefix("www.").removeprefix("newgrounds.com").removeprefix("/") # remove newgrounds prefix
+		url = url.removeprefix("audio/").removesuffix("listen/").removesuffix("download/")
+		if not url.isdigit():
+			info(f"well, url {ourl} not contains id.")
+			await ctx.send(f"Неправильная ссылка {ourl}.\nПроверьте ссылку на наличие ошибок.")
+			return
+	info(f"ID: {url}")
+	await ctx.send(f"extracted id: {url}")
+
+proto: list[dict[str, Callable[[commands.Context, str],None]]] = [
+	{
+		'proto': 'ng:',
+		'handl': nghandl
+	}
+]
+
 class Music(commands.Cog):
 	def __init__(self, bot):
 		info("Intializating Music cog...")
@@ -160,7 +185,7 @@ class Music(commands.Cog):
 		def gendochtmlamogus(): return "<p>indev</p>"
 
 	@commands.command(aliases=["p"])
-	async def play(self, ctx: commands.Context, *, url=None):
+	async def play(self, ctx: commands.Context, *, url: str=None):
 		if __import__("random").randint(0, 10) == 5:await ctx.send("Если в списке воспроизведения есть музыка, а бот не играет, используйте команду mfix")
 		server_id = ctx.guild.id
 		if server_id in servers:
@@ -184,6 +209,10 @@ class Music(commands.Cog):
 			await ctx.send("!!! WARNING !!!")
 			await ctx.send("!!! ОБНАРУЖЕНА ПОПЫТКА ВЗЛОМА БОТА !!!")
 		else:
+			for i in proto:
+				if url.startswith(i['proto']):
+					await i['handl'](ctx, url.removeprefix(i["proto"]))
+					return
 			if result == "ytdl":
 				# await senddebug(self, ctx, "Получение url...")
 				#os.system('yt-dlp --output /tmp/song.mp3 --force-overwrites -f 140 "{}"'.format(url))
