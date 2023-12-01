@@ -226,10 +226,11 @@ class Music(commands.Cog):
 			await ctx.send("!!! WARNING !!!")
 			await ctx.send("!!! ОБНАРУЖЕНА ПОПЫТКА ВЗЛОМА БОТА !!!")
 		else:
-			for i in proto:
-				if url.startswith(i['proto']):
-					await i['handl'](ctx, url.removeprefix(i["proto"]))
-					return
+			if url != None:
+				for i in proto:
+					if url.startswith(i['proto']):
+						await i['handl'](ctx, url.removeprefix(i["proto"]))
+						return
 			if result == "ytdl":
 				# await senddebug(self, ctx, "Получение url...")
 				#os.system('yt-dlp --output /tmp/song.mp3 --force-overwrites -f 140 "{}"'.format(url))
