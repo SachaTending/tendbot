@@ -170,7 +170,7 @@ async def nghandl(ctx: commands.Context, url: str):
 		url = url.removeprefix("www.").removeprefix("newgrounds.com").removeprefix("/") # remove newgrounds prefix
 		url = url.removeprefix("audio/").removesuffix("listen/").removesuffix("download/").removeprefix("download/").removeprefix("listen/")
 		if not url.isdigit():
-			info(f"well, url {ourl} not contains id.")
+			info(f"well, url {ourl} doesn't contains id.")
 			await ctx.send(f"Неправильная ссылка {ourl}.\nПроверьте ссылку на наличие ошибок.")
 			return
 	info(f"ID: {url}")
@@ -570,8 +570,8 @@ import threading
 
 async def setup(bot):
 	info("Setup of Music cog called!")
-	th = threading.Thread(target=queue_sanitizer)
-	th.start()
+	#th = threading.Thread(target=queue_sanitizer)
+	#th.start()
 	await bot.add_cog(Music(bot))
 
 async def teardown(bot):
@@ -585,7 +585,7 @@ async def teardown(bot):
 			error(traceback.format_exc())
 	info("Shutting down sanitizer...")
 	sanitizer_active = False
-	while not sanitizer_done:
-		pass
+	#while not sanitizer_done:
+	#	pass
 	info("Done!")
 	
